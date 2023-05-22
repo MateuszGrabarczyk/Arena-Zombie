@@ -1,0 +1,7 @@
+local komunikatGry = game.ReplicatedStorage:WaitForChild("KomunikatGry")
+local etykieta = script.Parent
+function Aktualizacja()
+etykieta.Text = komunikatGry.Value
+end
+Aktualizacja()
+komunikatGry.Changed:Connect(Aktualizacja)

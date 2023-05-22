@@ -1,0 +1,7 @@
+local zombieDoPokonania = game.ReplicatedStorage:WaitForChild("ZombieDoPokonania")
+local etykieta = script.Parent
+function Aktualizacja()
+etykieta.Text = "Pozostali wrogowie: " .. zombieDoPokonania.Value
+end
+Aktualizacja()
+zombieDoPokonania.Changed:Connect(Aktualizacja)

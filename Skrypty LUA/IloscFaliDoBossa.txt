@@ -1,0 +1,12 @@
+local aktualnaFala = game.ReplicatedStorage:WaitForChild("AktualnaFala")
+local finalnaFala = game.ReplicatedStorage:WaitForChild("FinalnaFala")
+local etykieta = script.Parent
+function Aktualizacja()
+if aktualnaFala.Value < finalnaFala.Value then
+etykieta.Text = "ILOŚĆ FAL DO BOSSA: " .. (finalnaFala.Value - aktualnaFala.Value)
+else
+etykieta.Text = "FALA Z BOSSEM"
+end
+end
+Aktualizacja()
+aktualnaFala.Changed:Connect(Aktualizacja)

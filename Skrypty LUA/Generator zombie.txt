@@ -1,0 +1,41 @@
+-- Tworzymy zmienną, która będzie przechowywać wszystkie miejsca do wygenerowania zombiaków
+-- Metoda GetChildren() pozwala na pobranie wszystkich elementów znajdujących się w folderze Miejsca
+local miejsca = game.Workspace.Miejsca:GetChildren()
+-- Pętla while, która wykonuje się co 0.2 sekundy
+while true do
+-- Jeżeli jest aktywna gra
+if game.ReplicatedStorage.AktywnaGra.Value == true then
+-- Jeżeli są zombiaki do wygenerowania
+if game.ReplicatedStorage.ZombieDoWygenerowania.Value > 0 then
+-- Sklonuj zombiaka, utworzona zmienna pozwoli na zmianę jego parametrów
+local nowyZombie = game.ReplicatedStorage.Zombie:Clone()
+-- Odwołanie do podstawowej części postaci,
+-- która pozwala na zmianę pozycji modelu gracza
+local root = nowyZombie:FindFirstChild("HumanoidRootPart")
+-- Losujemy miejsce do wygenerowania zombiaka,
+-- zapis #miejsca pozwala na pobranie informacji na temat ilości elementów
+
+local losoweMiejsce = math.random(1, #miejsca)
+-- Losujemy wartość X oraz Z, aby zombiaki nie generowały się w jednym miejscu,
+-- tylko w losowych miejscach od wylosowanego miejsca do wygenerowania
+local losowyX = math.random(-10,10)
+local losowyZ = math.random(-10,10)
+-- Poprzez element HumanoidRootPart, możemy ustawić pozycję nowego zombiaka,
+-- Vector3.new() pozwala na stworzenie nowego wektora w przestrzeni 3D,
+-- w naszym zastosowaniu posłuży jako punkt w przestrzeni 3D,
+-- dodanie losowych wartości do pozycji X oraz pozycji Y z wylosowanego miejsca
+-- pozwoli na generowanie zombiaków w oddalonych od siebie miejscach,
+-- wysokość jest stała
+root.Position = Vector3.new(
+miejsca[losoweMiejsce].Position.X + losowyX,
+6 ,
+miejsca[losoweMiejsce].Position.Z + losowyZ)
+-- Przypisanie nowego zombiaka do modelu Zombiaki
+nowyZombie.Parent = workspace.Zombiaki
+-- Zmniejszenie ilości zombiaków do wygenerowania o jeden
+game.ReplicatedStorage.ZombieDoWygenerowania.Value -= 1
+end
+end
+-- Czekaj 0.2 sekundy
+wait(0.2)
+end

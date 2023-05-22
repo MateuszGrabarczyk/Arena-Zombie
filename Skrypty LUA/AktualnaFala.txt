@@ -1,0 +1,13 @@
+local aktualnaFala = game.ReplicatedStorage:WaitForChild("AktualnaFala")
+local finalnaFala = game.ReplicatedStorage:WaitForChild("FinalnaFala")
+local etykieta = script.Parent
+function Aktualizacja()
+-- Zabezpieczenie przed wypisaniem większej wartości fali
+if aktualnaFala.Value < finalnaFala.Value then
+etykieta.Text = "FALA: " .. aktualnaFala.Value
+else
+etykieta.Text = "FALA: " .. finalnaFala.Value
+end
+end
+Aktualizacja()
+aktualnaFala.Changed:Connect(Aktualizacja)

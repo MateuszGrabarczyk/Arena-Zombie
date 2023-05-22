@@ -1,0 +1,174 @@
+-- tworzymy odwołanie do DataStoreService
+local DSS = game:GetService("DataStoreService")
+-- pobranie magazynu danych (Kasa) do tworzonej zmiennej Bank
+local Bank = DSS:GetDataStore("Kasa")
+-- pobranie magazynu danych Pokonani, do tworzonej zmiennej Spis
+local Spis = DSS:GetDataStore("Pokonani")
+-- kiedy gracz zostanie dodany połącz się z funkcją
+game.Players.PlayerAdded:Connect(function(gracz)
+-- pobranie danych z serwera danego gracza, jeżeli ich brak ustaw wartość na 0
+local kasa = Bank:GetAsync(gracz.UserId) or 0
+-- pobranie danych z serwera danego gracza, jeżeli ich brak ustaw wartość na 0
+local pokonani = Spis:GetAsync(gracz.UserId) or 0
+-- stwórz nowy folder i do ServerStorage
+local tablicaNaSerwerze = Instance.new("Folder", game.ServerStorage)
+-- nazwanie folderu nazwą gracza
+tablicaNaSerwerze.Name = gracz.Name
+-- stwórz nowy obiekt NumberValue i przypisz go do tablicy na serwerze
+local kasaNaSerwerze = Instance.new("NumberValue", tablicaNaSerwerze)
+-- nazwanie obiektu NumberValue nazwą gracza
+kasaNaSerwerze.Name = "Kasa"
+-- ustawienie ilości pieniędzy z banku do zmiennej kasy znajdującej się na serwerze
+kasaNaSerwerze.Value = kasa
+-- stwórz nowy obiekt NumberValue i przypisz go do tablicy na serwerze
+local pokonaniNaSerwerze = Instance.new("NumberValue", tablicaNaSerwerze)
+-- stwórz nowy obiekt NumberValue i przypisz go do tablicy na serwerze
+pokonaniNaSerwerze.Name = "Pokonani"
+-- ustawienie ilości pieniędzy z banku do zmiennej kasy znajdującej się na serwerze
+pokonaniNaSerwerze.Value = pokonani
+-- stwórz nowy folder i przypisz go do gracza
+local tablicaLokalnie = Instance.new("Folder", gracz)
+-- nazwanie folderu "leaderstats" pozwala na wyświetlenie tabeli wyników
+-- w prawym górnym rogu ekranu gry
+tablicaLokalnie.Name = "leaderstats"
+-- stwórz nowy obiekt NumberValue i przypisz go do lokalnej tablicy
+local kasaLokalnie = Instance.new("NumberValue", tablicaLokalnie)
+-- nazwanie obiektu NumberValue (Kasa)
+kasaLokalnie.Name = "Kasa"
+-- ustawienie lokalnej wartości kasy na wartość pobraną z serwera
+kasaLokalnie.Value = kasa
+
+-- stwórz nowy obiekt NumberValue i przypisz go do lokalnej tablicy
+local pokonaniLokalnie = Instance.new("NumberValue", tablicaLokalnie)
+-- nazwanie obiektu NumberValue (Pokonani)
+pokonaniLokalnie.Name = "Pokonani"
+-- ustawienie lokalnej wartości pokonanych na wartość pobraną z serwera
+pokonaniLokalnie.Value = pokonani
+-- po pobraniu danych ładujemy (Character) model gracza do gry.
+gracz:LoadCharacter()
+-- jeżeli wartość kasy na serwerze danego gracza zostanie zmieniona
+kasaNaSerwerze.Changed:Connect(function(liczba)
+-- ustaw lokalną wartość kasy na wartość pobraną z serwera
+kasaLokalnie.Value = liczba
+end)
+-- jeżeli wartość pokonanych na serwerze danego gracza zostanie zmieniona
+pokonaniNaSerwerze.Changed:Connect(function(liczba)
+-- ustaw lokalną wartość pokonanych na wartość pobraną z serwera
+pokonaniLokalnie.Value = liczba
+end)
+while true do
+-- zapisz ilość kasy danego gracza na serwerze
+Bank:SetAsync(gracz.UserId, kasaNaSerwerze.Value)
+-- zapisz ilość pokonanych danego gracza na serwerze
+Spis:SetAsync(gracz.UserId, pokonaniNaSerwerze.Value)
+-- wyświetl komunikat
+print("Kasa zapisana!")
+-- wyświetl komunikat
+print("Pokonani zapisani!")
+-- czekaj 10 sekund
+wait(10)
+end
+end)
+
+
+
+
+
+LOCAL SCRIPT: 
+-- Odwołania do elementów
+local przyciskBroni = script.Parent
+local nazwaBroni = przyciskBroni.NazwaBroni
+local uzbrojona = przyciskBroni.Uzbrojona
+local kupiona = przyciskBroni.Kupiona
+local replicatedStorage = game.ReplicatedStorage
+local zdarzenieIkona = replicatedStorage.Zdarzenia.Ikona
+local zdarzeniePrzycisk = replicatedStorage.Zdarzenia.Przycisk
+local obrazekUzbrojony = przyciskBroni.ObrazekUzbrojony
+local obrazekZablokowany = przyciskBroni.ObrazekZablokowany
+-- Ta funkcja pozwala na zmiane wyświetlania obrazka blokady
+
+-- oraz koloru przycisku broni kiedy jest kupiona lub niekupiona.
+local function ZmianaZakupu()
+-- Jeżeli dana broń jest kupiona
+if kupiona.Value then
+-- Wyłącz widoczność blokady
+obrazekZablokowany.Visible = false
+-- Zmień kolor tła ikony broni na zielony
+przyciskBroni.BackgroundColor3 = Color3.fromRGB(111, 223, 111)
+else
+-- Włącz widoczność blokady
+obrazekZablokowany.Visible = true
+-- Zmień kolor tła ikony broni na czarny
+przyciskBroni.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+end
+end
+-- Ta funkcja pozwala na zmiane wyświetlania obrazka uzbrojony
+local function ZmianaUzbrojenia()
+-- Jeżeli dana broń jest uzbrojona
+if uzbrojona.Value then
+-- Włącz widoczność obrazka
+obrazekUzbrojony.Visible = true
+else
+-- Wyłącz widoczność obrazka
+obrazekUzbrojony.Visible = false
+end
+end
+-- Ta funkcja pozwala na pobranie danych danej broni
+-- oraz czy została kupiona lub uzbrojona
+local function PobierzDane(bronSerwer, kupionaSerwer, uzbrojonaSerwer)
+-- Jeżeli broń z serwera jest bronią z tego przycisku
+if nazwaBroni.Value == bronSerwer then
+-- Ustaw wartość zmiennej kupiona na wartość z serwera
+kupiona.Value = kupionaSerwer
+-- Ustaw wartość zmiennej uzbrojona na wartość z serwera
+uzbrojona.Value = uzbrojonaSerwer
+-- Uruchom funkcję ZmianaZakupu
+ZmianaZakupu()
+-- Uruchom funkcję ZmianaUzbrojenia
+ZmianaUzbrojenia()
+end
+end
+-- Ta funkcja pozwala na wysłanie danych do serwera
+local function WyslijDane()
+-- Uruchamiamy zdarzenie kliknięcia w daną ikonę broni w sklepie
+zdarzenieIkona:FireServer(nazwaBroni.Value)
+end
+-- Zdarzenie ikona jest uruchamiane na początku gry, pozwoli to na załadowanie
+-- informacji do sklepu danego gracza oraz kiedy gracz wybierze daną broń, a następnie
+-- kliknie przycisku do zakupu, założenia lub ściągnięcia broni
+zdarzenieIkona.OnClientEvent:Connect(PobierzDane)
+-- Zdarzenie ikona pozwala na wysłanie informacji do serwera, że gracz wybrał daną
+-- broń ze sklepu i serwer w odpowiedzi przekaże informacje, czy wybrana broń została już
+-- kupiona lub czy gracz może ją założyć lub ściągnąć.
+przyciskBroni.MouseButton1Click:Connect(WyslijDane)
+
+
+LOCAL SCRIPT:
+
+-- Odwołania do elementów
+local przycisk = script.Parent
+local replicatedStorage = game.ReplicatedStorage
+local zdarzeniePrzycisk = replicatedStorage.Zdarzenia.Przycisk
+-- Zmienna przechowująca dane na temat wybranej broni
+local wybranaBron = nil
+-- Ta funkcja pozwala na aktualizację danych sklepu,
+-- tekstu wyświetlanego na przycisku oraz aktualnie wybranej broni.
+function AktualizacjaDanychSklepu(wiadomosc, bron)
+-- Wyświetl wiadomość z serwera w tekście przycisku
+przycisk.Text = wiadomosc
+-- Ustaw wybraną broń (gracz kliknął wybraną ikonkę broni)
+wybranaBron = bron
+end
+-- Gracz klika na wybraną ikonkę broni, co powoduje uruchomienie zdarzenia Ikona
+-- co powoduje uruchomienie funkcji AktualizacjaDanychSklepu
+zdarzeniePrzycisk.OnClientEvent:Connect(AktualizacjaDanychSklepu)
+-- Funkcja, która wysyła zdarzenie z informacjami do serwera
+function WyslanieDanychDoSerwera()
+-- Jeżeli jest wybrana broń
+if wybranaBron ~= nil then
+-- Wyślij zdarzenie z informacją o wybranej broni
+zdarzeniePrzycisk:FireServer(wybranaBron)
+end
+end
+-- Kiedy przycisk zostanie kliknięty uruchom funkcję WysylanieDanychDoSerwera
+przycisk.MouseButton1Click:Connect(WyslanieDanychDoSerwera)

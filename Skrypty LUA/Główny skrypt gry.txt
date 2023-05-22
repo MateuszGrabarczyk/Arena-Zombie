@@ -1,0 +1,99 @@
+-- Licznik pozwala na odliczanie czasu
+local licznik = game.ReplicatedStorage:WaitForChild("Licznik")
+-- Czas rundy określa ile sekund będzie trwała dana runda (fala)
+local czasRundy = game.ReplicatedStorage:WaitForChild("CzasRundy")
+-- Ilość zombie do wygenerowania,
+-- pozwoli generatorowi wygenerować odpowiednią ilość zombiaków
+local zombieDoWygenerowania = game.ReplicatedStorage:WaitForChild("ZombieDoWygenerowania")
+-- Ilość zombie do pokonania,
+-- pozwoli na sprawdzanie czy dana fala została pokonana
+local zombieDoPokonania = game.ReplicatedStorage:WaitForChild("ZombieDoPokonania")
+-- Finalna fala określa rundę z bossem
+local finalnaFala = game.ReplicatedStorage:WaitForChild("FinalnaFala")
+-- Zmienna logiczna aktywna gra, będzie określać,
+-- czy gra jest aktywna lub nie
+local aktywnaGra = game.ReplicatedStorage:WaitForChild("AktywnaGra")
+-- Aktualna fala określa jaki obecnie jest numer fali
+local aktualnaFala = game.ReplicatedStorage:WaitForChild("AktualnaFala")
+-- Komunikat gry pozwoli na przekazywanie informacji dla gracza
+local komunikatGry = game.ReplicatedStorage:WaitForChild("KomunikatGry")
+-- Ilość czasu w sekundach do rozpoczęcia gry
+local czasDoGry = game.ReplicatedStorage:WaitForChild("CzasDoGry")
+-- Ilość czasu w sekundach przerwy pomiędzy falami
+local czasPrzerwy = game.ReplicatedStorage:WaitForChild("CzasPrzerwy")
+-- Ilość czasu w sekundach po rozgrywce
+
+local czasPoGrze = game.ReplicatedStorage:WaitForChild("CzasPoGrze")
+-- Odwołanie do folderu Zombiaki, w którym będą umieszczane wygenerowane zombie
+local folderZombiaki = game.Workspace.Zombiaki
+-- Odwołanie do modelu bossa
+local boss = game.ReplicatedStorage:WaitForChild("Boss")
+-- Pętla nieskończona
+while true do
+-- Startowe odliczanie
+for i = czasDoGry.Value, 0, -1 do
+komunikatGry.Value = "Rozpoczęcie gry za: " .. i
+wait(1)
+end
+-- Ustawienie licznika na wartość czasu rundy
+licznik.Value = czasRundy.Value
+-- Ustawienie ilości zombiaków do wygenerowania
+zombieDoWygenerowania.Value = 10
+-- Ustawienie ilości zombiaków do pokonania
+zombieDoPokonania.Value = 10
+-- Ustawienie numeru aktualnej fali
+aktualnaFala.Value = 1
+-- Aktywacja gry
+aktywnaGra.Value = true
+-- Powtarzaj (aż do momentu kiedy gra zostanie zakończona)
+repeat
+-- Jeżeli wartość licznika jest większa od 0
+if licznik.Value > 0 then
+-- Wyświetlanie informacji na temat aktualnego czasu rozgrywki
+komunikatGry.Value = "Pozostały czas: " .. licznik.Value
+-- Czekaj sekundę
+wait(1)
+-- Zmniejsz licznik o jeden
+licznik.Value -= 1
+else -- W przeciwnym razie
+-- Ustaw komunikat przegrana
+komunikatGry.Value = "Przegrana!"
+-- Usuń wszystkie zombiaki w folderze Zombiaki
+game.Workspace.Zombiaki:ClearAllChildren()
+-- Dezaktywacja gry
+aktywnaGra.Value = false
+end
+-- jeżeli wszystkie zombiaki zostają pokonane
+if zombieDoPokonania.Value == 0 then
+-- wartość aktualnej fali zostaje zwiększona
+aktualnaFala.Value += 1
+
+if aktualnaFala.Value < finalnaFala.Value + 1 then
+for i = czasPrzerwy.Value, 0, -1 do
+komunikatGry.Value = "Następna fala za: " .. i
+wait(1)
+end
+-- ustawienie licznika na wartość czasu rundy
+licznik.Value = czasRundy.Value
+-- ustawienie ilości zombiaków do wygenerowania
+zombieDoWygenerowania.Value = 10 * aktualnaFala.Value
+-- ustawienie ilości zombiaków do pokonania
+zombieDoPokonania.Value = 10 * aktualnaFala.Value
+-- jeżeli fala jest falą finałową,
+if aktualnaFala.Value == finalnaFala.Value then
+-- sklonuj bossa
+local nowyBoss = boss:Clone()
+-- przypisz go do folderu z zombiakami (czyli do świata gry)
+nowyBoss.Parent = game.Workspace.Zombiaki
+-- zwiększ ilość zombiaków do pokonania o jeden
+zombieDoPokonania.Value += 1
+end
+else -- jeżeli wartość fali jest większa o jeden od finałowej wygrywamy grę.
+komunikatGry.Value = "Gratulacje, pojedynek wygrany!!!"
+aktywnaGra.Value = false
+end
+end
+until aktywnaGra.Value == false -- aż do momentu kiedy gra zostanie zakończona
+-- chwila przerwy, odczekanie do następnej gry
+wait(czasPoGrze.Value)
+end
